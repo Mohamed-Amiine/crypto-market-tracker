@@ -24,7 +24,7 @@ async function fetchFromCoinGecko(endpoint: string) {
 async function updateCryptocurrencyData() {
   try {
     const data = await fetchFromCoinGecko("/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false&price_change_percentage=24h,7d");
-    
+
     for (const coin of data) {
       await storage.upsertCryptocurrency({
         id: coin.id,
@@ -60,7 +60,7 @@ async function updateCryptocurrencyData() {
         price: coin.current_price?.toString()
       });
     }
-    
+
     return data;
   } catch (error) {
     console.error('Error updating cryptocurrency data:', error);
@@ -70,7 +70,7 @@ async function updateCryptocurrencyData() {
 
 async function checkPriceAlerts(cryptoData: any[]) {
   const activeAlerts = await storage.getActivePriceAlerts();
-  
+
   for (const alert of activeAlerts) {
     const cryptoPrice = cryptoData.find(c => c.id === alert.cryptoId);
     if (!cryptoPrice) continue;
@@ -143,7 +143,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('Fetching cryptocurrency data...');
       const data = await updateCryptocurrencyData();
       await checkPriceAlerts(data);
-      
+
       // Broadcast updated data to connected clients
       broadcast({
         type: 'price_update',
@@ -206,7 +206,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { id } = req.params;
       const hours = req.query.hours ? parseInt(req.query.hours as string) : 24;
-      const history = await storage.getPriceHistory(id, hours);
+
+      // Try to get from local storage first
+      let history = await storage.getPriceHistory(id, hours);
+
+      // If we don't have enough historical data (less than expected), fetch from CoinGecko
+      // Expected minimum data points: 1 per 30 seconds for short periods, less for longer
+      const expectedMinPoints = hours <= 6 ? Math.floor(hours * 2) : Math.floor(hours / 2);
+
+      if (history.length < expectedMinPoints) {
+        // Fetch from CoinGecko API
+        let days = 1;
+        if (hours <= 1) days = 1; // 1 hour - use 1 day data
+        else if (hours <= 24) days = 1; // 24 hours
+        else if (hours <= 168) days = Math.ceil(hours / 24); // up to 7 days
+        else if (hours <= 720) days = 30; // 1 month
+        else if (hours <= 2160) days = 90; // 3 months
+        else days = 'max' as any; // all time
+
+        const endpoint = `/coins/${id}/market_chart?vs_currency=usd&days=${days}`;
+        const coinGeckoData = await fetchFromCoinGecko(endpoint);
+
+        // Transform CoinGecko data to our format
+        if (coinGeckoData && coinGeckoData.prices) {
+          history = coinGeckoData.prices.map((pricePoint: [number, number]) => ({
+            id: `${id}-${pricePoint[0]}`,
+            cryptoId: id,
+            price: pricePoint[1].toString(),
+            timestamp: new Date(pricePoint[0])
+          }));
+
+          // Filter to requested time range
+          const cutoffTime = new Date(Date.now() - (hours * 60 * 60 * 1000));
+          history = history.filter(h => h.timestamp! >= cutoffTime);
+        }
+      }
+
       res.json(history);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch price history" });

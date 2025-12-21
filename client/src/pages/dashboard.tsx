@@ -4,7 +4,7 @@ import MarketOverview from "@/components/MarketOverview";
 import PriceChart from "@/components/PriceChart";
 import CryptocurrencyTable from "@/components/CryptocurrencyTable";
 import Sidebar from "@/components/Sidebar";
-import { useCryptoData } from "@/hooks/useCryptoData";
+import { useCryptoData, usePriceHistory } from "@/hooks/useCryptoData";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -13,7 +13,8 @@ export default function Dashboard() {
   const [selectedCrypto, setSelectedCrypto] = useState("bitcoin");
   const [searchFilter, setSearchFilter] = useState<string | null>(null);
   const { data: cryptocurrencies, isLoading } = useCryptoData();
-  const { lastUpdate, isConnected } = useWebSocket();
+  const { data: priceHistory } = usePriceHistory(selectedCrypto, 24);
+  const { isConnected } = useWebSocket();
 
   return (
     <div className="min-h-screen bg-background">
@@ -30,13 +31,23 @@ export default function Dashboard() {
             {/* Interactive Price Chart */}
             <div className="bg-card p-6 rounded-lg border border-border">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-semibold">Price Chart</h3>
+                <div className="flex items-center space-x-4">
+                  <h3 className="text-xl font-semibold">Price Chart</h3>
+                  {priceHistory && priceHistory.length > 0 && (
+                    <div className="text-sm text-muted-foreground">
+                      Last updated:{' '}
+                      <span data-testid="text-chart-last-update">
+                        {new Date(priceHistory[priceHistory.length - 1].timestamp!).toLocaleString()}
+                      </span>
+                    </div>
+                  )}
+                </div>
                 <div className="flex items-center space-x-4">
                   <div className="flex items-center space-x-2 text-sm text-muted-foreground">
                     <span className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></span>
                     <span>{isConnected ? 'Live Updates' : 'Disconnected'}</span>
                   </div>
-                  <select 
+                  <select
                     className="px-3 py-1 bg-secondary border border-border rounded text-sm"
                     onChange={(e) => setSelectedCrypto(e.target.value)}
                     value={selectedCrypto}
@@ -50,18 +61,8 @@ export default function Dashboard() {
                   </select>
                 </div>
               </div>
-              
+
               <PriceChart cryptoId={selectedCrypto} />
-              
-              <div className="flex items-center justify-between mt-4 text-sm text-muted-foreground">
-                <div>Last updated: <span data-testid="text-last-update">{lastUpdate || 'Never'}</span></div>
-                <div className="flex items-center space-x-4">
-                  <div className="flex items-center space-x-1">
-                    <div className="w-3 h-3 bg-primary rounded-full"></div>
-                    <span>Price</span>
-                  </div>
-                </div>
-              </div>
             </div>
 
             {/* Detailed Price Table */}

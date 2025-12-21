@@ -11,7 +11,16 @@ export function useCryptoData(limit?: number) {
 
 export function useCryptoSearch(query: string, enabled: boolean = true) {
   return useQuery<Cryptocurrency[]>({
-    queryKey: ['/api/cryptocurrencies/search', { q: query }],
+    queryKey: ['/api/cryptocurrencies/search', query],
+    queryFn: async () => {
+      const res = await fetch(`/api/cryptocurrencies/search?q=${encodeURIComponent(query)}`, {
+        credentials: "include",
+      });
+      if (!res.ok) {
+        throw new Error(`Search failed: ${res.statusText}`);
+      }
+      return await res.json();
+    },
     enabled: enabled && query.length > 2,
     staleTime: 30000,
   });
@@ -40,7 +49,7 @@ export function useWatchlist() {
 
 export function useAddToWatchlist() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async (data: { cryptoId: string }) => {
       const response = await apiRequest('POST', '/api/watchlist', data);
@@ -54,7 +63,7 @@ export function useAddToWatchlist() {
 
 export function useRemoveFromWatchlist() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async (cryptoId: string) => {
       const response = await apiRequest('DELETE', `/api/watchlist/${cryptoId}`);
@@ -75,7 +84,7 @@ export function usePriceAlerts() {
 
 export function useCreatePriceAlert() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async (data: { cryptoId: string; alertType: string; targetValue: string }) => {
       const response = await apiRequest('POST', '/api/alerts', data);
@@ -89,7 +98,7 @@ export function useCreatePriceAlert() {
 
 export function useDeletePriceAlert() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async (alertId: string) => {
       const response = await apiRequest('DELETE', `/api/alerts/${alertId}`);

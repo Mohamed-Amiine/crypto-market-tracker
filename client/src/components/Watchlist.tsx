@@ -2,18 +2,28 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Plus, X } from "lucide-react";
-import { useWatchlist } from "@/hooks/useCryptoData";
+import { useWatchlist, useRemoveFromWatchlist } from "@/hooks/useCryptoData";
 import { useToast } from "@/hooks/use-toast";
 
 export default function Watchlist() {
   const { data: watchlist, isLoading } = useWatchlist();
+  const removeFromWatchlist = useRemoveFromWatchlist();
   const { toast } = useToast();
 
-  const handleRemoveFromWatchlist = (cryptoId: string, cryptoName: string) => {
-    toast({
-      title: "Removed from watchlist",
-      description: `${cryptoName} has been removed from your watchlist`
-    });
+  const handleRemoveFromWatchlist = async (cryptoId: string, cryptoName: string) => {
+    try {
+      await removeFromWatchlist.mutateAsync(cryptoId);
+      toast({
+        title: "Removed from watchlist",
+        description: `${cryptoName} has been removed from your watchlist`
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to remove from watchlist. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   if (isLoading) {
@@ -55,7 +65,7 @@ export default function Watchlist() {
             <Plus className="h-4 w-4 text-primary" />
           </Button>
         </div>
-        
+
         <div className="space-y-3">
           {(!watchlist || watchlist.length === 0) ? (
             <div className="text-center py-8 text-muted-foreground">
@@ -69,8 +79,8 @@ export default function Watchlist() {
               const price = parseFloat(item.crypto.current_price || "0");
 
               return (
-                <div 
-                  key={item.id} 
+                <div
+                  key={item.id}
                   className="flex items-center justify-between p-3 hover:bg-muted/50 rounded transition-colors"
                   data-testid={`watchlist-item-${item.crypto.id}`}
                 >
@@ -112,7 +122,7 @@ export default function Watchlist() {
             })
           )}
         </div>
-        
+
         <Button
           variant="outline"
           className="w-full mt-4 border-dashed text-muted-foreground"

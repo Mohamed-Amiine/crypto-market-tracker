@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowUpDown, ArrowUp, ArrowDown, Filter, Download, Star, Bell } from "lucide-react";
 import type { Cryptocurrency } from "@shared/schema";
-import { useWatchlist } from "@/hooks/useCryptoData";
+import { useWatchlist, useAddToWatchlist, useRemoveFromWatchlist } from "@/hooks/useCryptoData";
 import { useToast } from "@/hooks/use-toast";
 
 interface CryptocurrencyTableProps {
@@ -21,6 +21,8 @@ export default function CryptocurrencyTable({ cryptocurrencies, isLoading, searc
   const itemsPerPage = 10;
 
   const { data: watchlist } = useWatchlist();
+  const addToWatchlist = useAddToWatchlist();
+  const removeFromWatchlist = useRemoveFromWatchlist();
   const { toast } = useToast();
 
   const handleSort = (field: keyof Cryptocurrency) => {
@@ -33,21 +35,21 @@ export default function CryptocurrencyTable({ cryptocurrencies, isLoading, searc
   };
 
   // Filter data if search filter is applied
-  const filteredData = searchFilter 
+  const filteredData = searchFilter
     ? cryptocurrencies.filter(crypto => crypto.id === searchFilter)
     : cryptocurrencies;
 
   const sortedData = [...filteredData].sort((a, b) => {
     const aVal = a[sortBy] || '';
     const bVal = b[sortBy] || '';
-    
+
     if (typeof aVal === 'string' && typeof bVal === 'string') {
       return sortDirection === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
     }
-    
+
     const aNum = parseFloat(aVal as string) || 0;
     const bNum = parseFloat(bVal as string) || 0;
-    
+
     return sortDirection === 'asc' ? aNum - bNum : bNum - aNum;
   });
 
@@ -58,17 +60,28 @@ export default function CryptocurrencyTable({ cryptocurrencies, isLoading, searc
 
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
 
-  const handleWatchlistToggle = (cryptoId: string) => {
+  const handleWatchlistToggle = async (cryptoId: string, cryptoName: string) => {
     const isWatched = watchlist?.some(item => item.cryptoId === cryptoId);
-    if (isWatched) {
+
+    try {
+      if (isWatched) {
+        await removeFromWatchlist.mutateAsync(cryptoId);
+        toast({
+          title: "Removed from watchlist",
+          description: `${cryptoName} has been removed from your watchlist`
+        });
+      } else {
+        await addToWatchlist.mutateAsync({ cryptoId });
+        toast({
+          title: "Added to watchlist",
+          description: `${cryptoName} has been added to your watchlist`
+        });
+      }
+    } catch (error) {
       toast({
-        title: "Removed from watchlist",
-        description: "Cryptocurrency has been removed from your watchlist"
-      });
-    } else {
-      toast({
-        title: "Added to watchlist",
-        description: "Cryptocurrency has been added to your watchlist"
+        title: "Error",
+        description: "Failed to update watchlist. Please try again.",
+        variant: "destructive"
       });
     }
   };
@@ -104,7 +117,7 @@ export default function CryptocurrencyTable({ cryptocurrencies, isLoading, searc
           </div>
         </div>
       </div>
-      
+
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead className="bg-muted">
@@ -193,9 +206,9 @@ export default function CryptocurrencyTable({ cryptocurrencies, isLoading, searc
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm" data-testid={`text-market-cap-${crypto.id}`}>
-                    ${marketCap > 1e12 ? (marketCap / 1e12).toFixed(1) + 'T' : 
-                      marketCap > 1e9 ? (marketCap / 1e9).toFixed(1) + 'B' : 
-                      (marketCap / 1e6).toFixed(1) + 'M'}
+                    ${marketCap > 1e12 ? (marketCap / 1e12).toFixed(1) + 'T' :
+                      marketCap > 1e9 ? (marketCap / 1e9).toFixed(1) + 'B' :
+                        (marketCap / 1e6).toFixed(1) + 'M'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm" data-testid={`text-volume-${crypto.id}`}>
                     ${volume > 1e9 ? (volume / 1e9).toFixed(1) + 'B' : (volume / 1e6).toFixed(1) + 'M'}
@@ -205,7 +218,7 @@ export default function CryptocurrencyTable({ cryptocurrencies, isLoading, searc
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => handleWatchlistToggle(crypto.id)}
+                        onClick={() => handleWatchlistToggle(crypto.id, crypto.name)}
                         data-testid={`button-watchlist-${crypto.id}`}
                         className={isWatched ? "text-yellow-500 hover:text-yellow-600" : "text-muted-foreground hover:text-yellow-500"}
                       >
@@ -227,7 +240,7 @@ export default function CryptocurrencyTable({ cryptocurrencies, isLoading, searc
           </tbody>
         </table>
       </div>
-      
+
       <div className="px-6 py-4 border-t border-border">
         <div className="flex items-center justify-between">
           <div className="text-sm text-muted-foreground">

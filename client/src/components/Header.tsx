@@ -25,7 +25,7 @@ export default function Header({ onSearchSelect }: HeaderProps) {
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
               <div className="text-2xl">📈</div>
-              <h1 className="text-2xl font-bold text-foreground" data-testid="text-app-title">CryptoTracker</h1>
+              <h1 className="text-2xl font-bold text-foreground" data-testid="text-app-title">CryptoPulse</h1>
               <Badge variant="default" className="bg-primary text-primary-foreground">PRO</Badge>
             </div>
           </div>
