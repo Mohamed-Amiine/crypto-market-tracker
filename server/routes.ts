@@ -309,12 +309,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Watchlist routes (using dummy user ID for demo)
-  const DEMO_USER_ID = "demo-user";
+  // Watchlist routes (using user ID from headers)
+  const getUserId = (req: any) => {
+    return req.headers['x-user-id'] || 'anonymous';
+  };
 
   app.get("/api/watchlist", async (req, res) => {
     try {
-      const watchlist = await storage.getWatchlist(DEMO_USER_ID);
+      const userId = getUserId(req);
+      const watchlist = await storage.getWatchlist(userId);
       res.json(watchlist);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch watchlist" });
@@ -323,9 +326,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/watchlist", async (req, res) => {
     try {
+      const userId = getUserId(req);
       const data = insertWatchlistSchema.parse({
         ...req.body,
-        userId: DEMO_USER_ID
+        userId: userId
       });
       const watchlistItem = await storage.addToWatchlist(data);
       res.json(watchlistItem);
@@ -339,8 +343,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/watchlist/:cryptoId", async (req, res) => {
     try {
+      const userId = getUserId(req);
       const { cryptoId } = req.params;
-      await storage.removeFromWatchlist(DEMO_USER_ID, cryptoId);
+      await storage.removeFromWatchlist(userId, cryptoId);
       res.json({ message: "Removed from watchlist" });
     } catch (error) {
       res.status(500).json({ message: "Failed to remove from watchlist" });
@@ -350,7 +355,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Price alerts routes
   app.get("/api/alerts", async (req, res) => {
     try {
-      const alerts = await storage.getPriceAlerts(DEMO_USER_ID);
+      const userId = getUserId(req);
+      const alerts = await storage.getPriceAlerts(userId);
       res.json(alerts);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch price alerts" });
@@ -359,9 +365,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/alerts", async (req, res) => {
     try {
+      const userId = getUserId(req);
       const data = insertPriceAlertSchema.parse({
         ...req.body,
-        userId: DEMO_USER_ID
+        userId: userId
       });
       const alert = await storage.createPriceAlert(data);
       res.json(alert);

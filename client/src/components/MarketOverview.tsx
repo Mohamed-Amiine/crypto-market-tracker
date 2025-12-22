@@ -1,10 +1,11 @@
 // MarketOverview component for displaying crypto trends
 import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { TrendingUp, TrendingDown, Star } from "lucide-react";
+import { TrendingUp, TrendingDown, Star, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Cryptocurrency } from "@shared/schema";
 import { useWatchlist, useAddToWatchlist, useRemoveFromWatchlist } from "@/hooks/useCryptoData";
+import CreateAlertDialog from "./CreateAlertDialog";
 
 interface MarketOverviewProps {
     cryptocurrencies: Cryptocurrency[];
@@ -13,6 +14,8 @@ interface MarketOverviewProps {
 export default function MarketOverview({ cryptocurrencies: initialCryptos }: MarketOverviewProps) {
     const [displayedCoins, setDisplayedCoins] = useState<Cryptocurrency[]>(initialCryptos.slice(0, 4));
     const [startIndex, setStartIndex] = useState(0);
+    const [alertDialogOpen, setAlertDialogOpen] = useState(false);
+    const [selectedCrypto, setSelectedCrypto] = useState<Cryptocurrency | null>(null);
     const { data: watchlist } = useWatchlist();
     const addToWatchlist = useAddToWatchlist();
     const removeFromWatchlist = useRemoveFromWatchlist();
@@ -86,16 +89,31 @@ export default function MarketOverview({ cryptocurrencies: initialCryptos }: Mar
                                         <p className="text-xs text-muted-foreground">{crypto.symbol.toUpperCase()}</p>
                                     </div>
                                 </div>
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-8 w-8 text-muted-foreground hover:text-yellow-500"
-                                    onClick={(e) => toggleWatchlist(e, crypto.id)}
-                                >
-                                    <Star
-                                        className={`h-4 w-4 ${watchlist?.some(item => item.cryptoId === crypto.id) ? "fill-yellow-500 text-yellow-500" : ""}`}
-                                    />
-                                </Button>
+                                <div className="flex gap-1">
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-8 w-8 text-muted-foreground hover:text-yellow-500"
+                                        onClick={(e) => toggleWatchlist(e, crypto.id)}
+                                    >
+                                        <Star
+                                            className={`h-4 w-4 ${watchlist?.some(item => item.cryptoId === crypto.id) ? "fill-yellow-500 text-yellow-500" : ""}`}
+                                        />
+                                    </Button>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-8 w-8 text-muted-foreground hover:text-blue-500"
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            setSelectedCrypto(crypto);
+                                            setAlertDialogOpen(true);
+                                        }}
+                                    >
+                                        <Bell className="h-4 w-4" />
+                                    </Button>
+                                </div>
                             </div>
                             <div className="space-y-1">
                                 <p className="text-2xl font-bold">{formatPrice(crypto.current_price)}</p>
@@ -112,6 +130,13 @@ export default function MarketOverview({ cryptocurrencies: initialCryptos }: Mar
                     </Card>
                 );
             })}
+            {selectedCrypto && (
+                <CreateAlertDialog
+                    open={alertDialogOpen}
+                    onOpenChange={setAlertDialogOpen}
+                    crypto={selectedCrypto}
+                />
+            )}
         </div>
     );
 }

@@ -4,10 +4,9 @@ import MarketOverview from "@/components/MarketOverview";
 import PriceChart from "@/components/PriceChart";
 import CryptocurrencyTable from "@/components/CryptocurrencyTable";
 import Sidebar from "@/components/Sidebar";
+import FABMenu from "@/components/FABMenu";
 import { useCryptoData, usePriceHistory } from "@/hooks/useCryptoData";
 import { useWebSocket } from "@/hooks/useWebSocket";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
 
 export default function Dashboard() {
   const [selectedCrypto, setSelectedCrypto] = useState("bitcoin");
@@ -15,6 +14,9 @@ export default function Dashboard() {
   const { data: cryptocurrencies, isLoading } = useCryptoData(100);
   const { data: priceHistory } = usePriceHistory(selectedCrypto, 24);
   const { isConnected } = useWebSocket();
+
+  // Get the selected crypto object for FAB menu
+  const selectedCryptoObj = cryptocurrencies?.find(c => c.id === selectedCrypto) || cryptocurrencies?.[0];
 
   return (
     <div className="min-h-screen bg-background">
@@ -74,15 +76,8 @@ export default function Dashboard() {
         </div>
       </main>
 
-      {/* Floating Action Button */}
-      <Button
-        className="fixed bottom-6 right-6 w-14 h-14 rounded-full shadow-lg hover:shadow-xl z-40"
-        size="icon"
-        data-testid="button-quick-actions"
-        title="Quick Actions"
-      >
-        <Plus className="h-6 w-6" />
-      </Button>
+      {/* Floating Action Button Menu */}
+      {selectedCryptoObj && <FABMenu selectedCrypto={selectedCryptoObj} />}
     </div>
   );
 }
