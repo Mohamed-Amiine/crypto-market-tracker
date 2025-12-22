@@ -85,7 +85,7 @@ async function updateCryptocurrencyData() {
     console.error('Error updating cryptocurrency data (will retry later):', error);
 
     // If storage is empty (first boot), seed with basic data
-    const existingData = await storage.getCryptocurrencies({ limit: 10 });
+    const existingData = await storage.getCryptocurrencies(10);
     if (!existingData || existingData.length === 0) {
       console.log('Storage empty - seeding with fallback data');
       await seedFallbackData();
